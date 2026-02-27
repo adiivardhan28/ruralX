@@ -1,20 +1,24 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
 
 :root {
-  /* Colors */
-  --primary: #22c55e;
-  --primary-hover: #16a34a;
-  --secondary: #0ea5e9;
-  
-  --bg-gradient: linear-gradient(135deg, #f0fdf4 0%, #e0f2fe 100%);
-  
-  --text-dark: #1e293b;
-  --text-muted: #64748b;
+  /* Agriculture Premium Palette */
+  --primary: #15803d;
+  /* Deep Forest Green */
+  --primary-hover: #166534;
+  /* Darker Green */
+  --secondary: #eab308;
+  /* Warm Amber / Sun */
+  --secondary-hover: #ca8a04;
+
+  --bg-gradient: linear-gradient(135deg, #fdfbf7 0%, #f0fdf4 100%);
+
+  --text-dark: #0f172a;
+  --text-muted: #475569;
   --text-light: #ffffff;
-  
-  --surface: rgba(255, 255, 255, 0.85);
-  --surface-border: rgba(255, 255, 255, 0.5);
-  
+
+  --surface: rgba(255, 255, 255, 0.95);
+  --surface-border: rgba(21, 128, 61, 0.15);
+
   /* Typography */
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 }
@@ -31,33 +35,37 @@ body {
   background: var(--bg-gradient);
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
+  font-size: 16px;
+  /* Base for better reading */
 }
 
 /* Base Component Styles */
 .glass-card {
   background: var(--surface);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
   border: 1px solid var(--surface-border);
-  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 40px -10px rgba(21, 128, 61, 0.08);
 }
 
 .primary-btn {
-  background: linear-gradient(135deg, var(--primary) 0%, #10b981 100%);
+  background: linear-gradient(135deg, var(--primary) 0%, #16a34a 100%);
   color: var(--text-light);
-  font-weight: 600;
-  font-size: 1.125rem;
-  padding: 1rem 1.5rem;
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding: 1.25rem 1.5rem;
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   cursor: pointer;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 14px 0 rgba(34, 197, 94, 0.39);
+  box-shadow: 0 8px 20px -6px rgba(21, 128, 61, 0.5);
+  letter-spacing: 0.5px;
 }
 
 .primary-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(34, 197, 94, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 12px 25px -6px rgba(21, 128, 61, 0.6);
+  background: linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%);
 }
 
 .primary-btn:active {
@@ -70,6 +78,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -77,14 +86,15 @@ body {
 }
 
 .fade-in-up {
-  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 0.5s cubic-bezier(0.2, 0.8, 0.2, 1) forwards;
 }
 
 @keyframes slideInRight {
   from {
     opacity: 0;
-    transform: translateX(-10px);
+    transform: translateX(-15px);
   }
+
   to {
     opacity: 1;
     transform: translateX(0);
@@ -92,11 +102,19 @@ body {
 }
 
 .slide-in-right {
-  animation: slideInRight 0.3s ease-out forwards;
+  animation: slideInRight 0.35s ease-out forwards;
 }
 
 @keyframes float {
-  0% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-  100% { transform: translateY(0px); }
+  0% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-8px);
+  }
+
+  100% {
+    transform: translateY(0px);
+  }
 }
