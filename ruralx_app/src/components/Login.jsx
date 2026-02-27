@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Phone, ArrowRight, ShieldCheck } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import './Login.css';
 
-export default function Login({ onLoginComplete }) {
+export default function Login() {
     const { t } = useTranslation();
+    const navigate = useNavigate();
     const [step, setStep] = useState(1); // 1 = Phone, 2 = OTP
     const [phone, setPhone] = useState('');
     const [otp, setOtp] = useState(['', '', '', '', '', '']); // 6 digit OTP mock
@@ -13,7 +15,6 @@ export default function Login({ onLoginComplete }) {
         e.preventDefault();
         if (phone.length > 5) {
             setStep(2);
-            // Mock sending OTP
             console.log("OTP Sent");
         }
     };
@@ -35,9 +36,7 @@ export default function Login({ onLoginComplete }) {
         e.preventDefault();
         const otpValue = otp.join('');
         if (otpValue.length === 6) {
-            if (onLoginComplete) {
-                onLoginComplete();
-            }
+            navigate('/dashboard');
         }
     };
 
@@ -76,6 +75,10 @@ export default function Login({ onLoginComplete }) {
                                 <ArrowRight size={20} className="ml-2" />
                             </button>
                         </form>
+
+                        <p className="auth-link" style={{ "textAlign": "center", "marginTop": "1.5rem", "color": "var(--text-muted)", "fontWeight": 500 }}>
+                            Don't have an account? <span onClick={() => navigate('/register')} style={{ "color": "var(--primary)", "fontWeight": 700, "cursor": "pointer" }}>Register here</span>
+                        </p>
                     </>
                 ) : (
                     <>
@@ -111,10 +114,11 @@ export default function Login({ onLoginComplete }) {
 
                             <button
                                 type="submit"
-                                className={`primary-btn w-full mt-6 ${otp.join('').length < 6 ? 'disabled' : ''}`}
+                                className={`primary-btn w-full mt-6 flex-center ${otp.join('').length < 6 ? 'disabled' : ''}`}
                                 disabled={otp.join('').length < 6}
                             >
                                 {t('verifyOtp')}
+                                <ArrowRight size={20} className="ml-2" />
                             </button>
                         </form>
                     </>

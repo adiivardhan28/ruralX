@@ -1,46 +1,50 @@
-import React, { useState } from 'react';
+import React from 'react';
+import { Routes, Route, Outlet, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import './i18n'; // Import i18n configuration
+import './i18n';
 import LanguageSelector from './components/LanguageSelector';
 import Login from './components/Login';
+import Registration from './components/Registration';
+import Navbar from './components/Navbar';
+
+import Home from './pages/Home';
+import Schemes from './pages/Schemes';
+import Emergency from './pages/Emergency';
 import './App.css';
 
+// Dashboard Layout Component wrapping the protected pages
+function DashboardLayout() {
+  return (
+    <div className="dashboard-layout">
+      <div className="dashboard-content">
+        <Outlet />
+      </div>
+      <Navbar />
+    </div>
+  );
+}
+
 function App() {
-  const { t } = useTranslation();
-  const [currentView, setCurrentView] = useState('language'); // 'language' -> 'login' -> 'home'
+  const navigate = useNavigate();
 
   const handleLanguageSelect = (lang) => {
-    setCurrentView('login');
-  };
-
-  const handleLoginComplete = () => {
-    setCurrentView('home');
+    navigate('/login');
   };
 
   return (
     <div className="app-container">
-      {currentView === 'language' && (
-        <LanguageSelector onLanguageSelect={handleLanguageSelect} />
-      )}
+      <Routes>
+        <Route path="/" element={<LanguageSelector onLanguageSelect={handleLanguageSelect} />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Registration />} />
 
-      {currentView === 'login' && (
-        <Login onLoginComplete={handleLoginComplete} />
-      )}
-
-      {currentView === 'home' && (
-        <div className="home-container">
-          {/* Placeholder for Home Page Dashboard (Next Phase) */}
-          <div className="glass-card dash-card fade-in-up">
-            <h1>{t('homeWelcome')}</h1>
-            <p>{t('subtitle')}</p>
-
-            <div className="mt-6 flex gap-4 dashboard-mockup">
-              <div className="stat-box">Scanner / Voice Mock</div>
-              <div className="stat-box">Weather Alert Mock</div>
-            </div>
-          </div>
-        </div>
-      )}
+        {/* Dashboard Routes with Navbar */}
+        <Route path="/dashboard" element={<DashboardLayout />}>
+          <Route index element={<Home />} />
+          <Route path="schemes" element={<Schemes />} />
+          <Route path="emergency" element={<Emergency />} />
+        </Route>
+      </Routes>
     </div>
   );
 }
