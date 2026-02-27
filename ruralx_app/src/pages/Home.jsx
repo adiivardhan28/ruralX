@@ -1,18 +1,70 @@
-import React, { useState } from 'react';
-import { Camera, Mic, MapPin, AlertTriangle, ShieldCheck, ThermometerSun, Leaf, Volume2 } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { Camera, MapPin, AlertTriangle, ShieldCheck, ThermometerSun, Leaf, Volume2, Loader2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
+import { getCropSuitability } from '../utils/cropData';
 
 export default function Home() {
     const { t } = useTranslation();
     const [showReport, setShowReport] = useState(false);
     const [isScanning, setIsScanning] = useState(false);
 
-    // Mock Data for Phase 3
-    const locationData = {
-        state: "Telangana",
-        favorableCrops: ["Cotton", "Rice", "Maize"],
-        unfavorableCrops: ["Wheat", "Apple"]
-    };
+    // Location States
+    const [locationData, setLocationData] = useState({
+        state: "Detecting Location...",
+        favorableCrops: ["-"],
+        unfavorableCrops: ["-"],
+        isLoading: true,
+        error: null
+    });
+
+    useEffect(() => {
+        // Attempt to get real-time location via browser
+        if ("geolocation" in navigator) {
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+                    const lat = position.coords.latitude;
+                    const lon = position.coords.longitude;
+
+                    try {
+                        // Using OSM Nominatim for free Reverse Geocoding
+                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`);
+                        const data = await response.json();
+
+                        const stateName = data.address.state || data.address.region || "Unknown Region";
+                        const crops = getCropSuitability(stateName);
+
+                        setLocationData({
+                            state: stateName,
+                            favorableCrops: crops.favorable,
+                            unfavorableCrops: crops.unfavorable,
+                            isLoading: false,
+                            error: null
+                        });
+                    } catch (error) {
+                        console.error("Geocoding failed:", error);
+                        setLocationData(prev => ({ ...prev, state: "Location Unavailable", isLoading: false, error: "Failed to fetch state name." }));
+                    }
+                },
+                (err) => {
+                    console.error("Geolocation error:", err);
+                    let errorMsg = "Please allow location access.";
+                    if (err.code === err.PERMISSION_DENIED) errorMsg = "Location permission denied.";
+
+                    setLocationData(prev => ({
+                        ...prev,
+                        state: "Location Disabled",
+                        isLoading: false,
+                        error: errorMsg,
+                        favorableCrops: ["Enable Location"],
+                        unfavorableCrops: ["Enable Location"]
+                    }));
+                },
+                { timeout: 10000 }
+            );
+        } else {
+            setLocationData(prev => ({ ...prev, state: "Geolocation Not Supported", isLoading: false, error: "Browser not supported." }));
+        }
+    }, []);
 
     const diseaseReport = {
         disease: "Leaf Blight",
@@ -33,7 +85,6 @@ export default function Home() {
     };
 
     const handleTTS = () => {
-        // Basic browser TTS mockup
         if ('speechSynthesis' in window) {
             const text = `Disease detected: ${diseaseReport.disease}. Severity is ${diseaseReport.severity}. Reason: ${diseaseReport.reason}.`;
             const utterance = new SpeechSynthesisUtterance(text);
@@ -48,19 +99,28 @@ export default function Home() {
             {/* Location Intelligence Banner */}
             <div className="location-banner glass-card mb-6">
                 <div className="location-header">
-                    <MapPin size={20} className="text-primary" />
-                    <h3>{locationData.state} Region</h3>
+                    {locationData.isLoading ? (
+                        <Loader2 size={20} className="text-primary animate-spin" />
+                    ) : (
+                        <MapPin size={20} className="text-primary" />
+                    )}
+                    <h3>{locationData.state} {locationData.isLoading ? '' : 'Region'}</h3>
                 </div>
-                <div className="crops-info mt-2">
-                    <div className="crop-badge favorable">
-                        <Leaf size={14} className="mr-1" />
-                        <strong>Favorable:</strong> {locationData.favorableCrops.join(', ')}
+
+                {locationData.error ? (
+                    <p className="subtitle mt-2 text-error" style={{ fontSize: "0.85rem" }}>{locationData.error}</p>
+                ) : (
+                    <div className="crops-info mt-2">
+                        <div className="crop-badge favorable">
+                            <Leaf size={14} className="mr-1" />
+                            <strong>Favorable:</strong> {locationData.favorableCrops.join(', ')}
+                        </div>
+                        <div className="crop-badge unfavorable mt-2">
+                            <AlertTriangle size={14} className="mr-1" />
+                            <strong>Avoid:</strong> {locationData.unfavorableCrops.join(', ')}
+                        </div>
                     </div>
-                    <div className="crop-badge unfavorable mt-2">
-                        <AlertTriangle size={14} className="mr-1" />
-                        <strong>Avoid:</strong> {locationData.unfavorableCrops.join(', ')}
-                    </div>
-                </div>
+                )}
             </div>
 
             <div className="page-header">
@@ -68,7 +128,7 @@ export default function Home() {
                 <p className="subtitle">Diagnose your crops instantly</p>
             </div>
 
-            {/* Action Grid */}
+            {/* Action Grid (Voice Removed based on feedback) */}
             <div className="action-grid mt-6">
                 <div className="action-card" onClick={simulateScan}>
                     <div className="action-icon-wrapper scan">
@@ -76,14 +136,6 @@ export default function Home() {
                     </div>
                     <h3>Crop Scan</h3>
                     <p>Upload a photo to detect diseases</p>
-                </div>
-
-                <div className="action-card" onClick={simulateScan}>
-                    <div className="action-icon-wrapper voice">
-                        <Mic size={32} />
-                    </div>
-                    <h3>Voice Assistant</h3>
-                    <p>Speak to describe symptoms</p>
                 </div>
             </div>
 

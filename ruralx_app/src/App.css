@@ -13,7 +13,6 @@
 
 .dashboard-content {
   padding-bottom: 90px;
-  /* Space for the bottom navbar */
   min-height: 100vh;
 }
 
@@ -92,6 +91,20 @@
   color: #991b1b;
 }
 
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Home Page Action Grid */
 .action-grid {
   display: grid;
@@ -130,12 +143,6 @@
   background: #e0e7ff;
   color: #4f46e5;
   box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
-}
-
-.action-icon-wrapper.voice {
-  background: #fef08a;
-  color: #a16207;
-  box-shadow: 0 4px 10px rgba(161, 98, 7, 0.2);
 }
 
 .action-card h3 {
@@ -187,7 +194,6 @@
   border-radius: 24px;
   background: #ffffff;
   border-top: 6px solid #ef4444;
-  /* Error red for disease warning */
 }
 
 .report-title-row {
@@ -324,7 +330,7 @@
   animation: slideInTop 0.4s ease-out forwards;
 }
 
-/* Utility classes used across pages */
+/* Utility classes */
 .mb-6 {
   margin-bottom: 1.5rem;
 }
