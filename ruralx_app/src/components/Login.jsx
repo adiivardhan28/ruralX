@@ -13,7 +13,7 @@ export default function Login() {
 
     const handlePhoneSubmit = (e) => {
         e.preventDefault();
-        if (phone.length > 5) {
+        if (phone.length === 10) {
             setStep(2);
             console.log("OTP Sent");
         }
@@ -61,15 +61,19 @@ export default function Login() {
                                     className="phone-input"
                                     placeholder={t('phonePlaceholder')}
                                     value={phone}
-                                    onChange={(e) => setPhone(e.target.value)}
+                                    maxLength={10}
+                                    onChange={(e) => {
+                                        const val = e.target.value.replace(/\D/g, '');
+                                        setPhone(val);
+                                    }}
                                     autoFocus
                                 />
                             </div>
 
                             <button
                                 type="submit"
-                                className={`primary-btn w-full flex-center ${phone.length < 5 ? 'disabled' : ''}`}
-                                disabled={phone.length < 5}
+                                className={`primary-btn w-full flex-center ${phone.length !== 10 ? 'disabled' : ''}`}
+                                disabled={phone.length !== 10}
                             >
                                 {t('sendOtp')}
                                 <ArrowRight size={20} className="ml-2" />

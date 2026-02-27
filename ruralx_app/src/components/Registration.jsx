@@ -23,13 +23,13 @@ export default function Registration() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        if (formData.fullName && formData.phone.length > 5 && formData.state) {
+        if (formData.fullName && formData.phone.length === 10 && formData.state) {
             // In a real app, API call goes here.
             navigate('/dashboard');
         }
     };
 
-    const isFormValid = formData.fullName && formData.phone.length > 5 && formData.state;
+    const isFormValid = formData.fullName && formData.phone.length === 10 && formData.state;
 
     return (
         <div className="register-container">
@@ -38,8 +38,8 @@ export default function Registration() {
                     <div className="icon-circle">
                         <User className="header-icon" size={32} />
                     </div>
-                    <h2>Create Account</h2> {/* Can be i18n later */}
-                    <p className="subtitle">Join the RuralX community today</p>
+                    <h2>{t('createAccount')}</h2>
+                    <p className="subtitle">{t('joinSubtitle')}</p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="register-form">
@@ -49,7 +49,7 @@ export default function Registration() {
                             type="text"
                             name="fullName"
                             className="form-input"
-                            placeholder="Full Name"
+                            placeholder={t('fullName')}
                             value={formData.fullName}
                             onChange={handleChange}
                             required
@@ -64,7 +64,11 @@ export default function Registration() {
                             className="form-input"
                             placeholder="+91 9876543210"
                             value={formData.phone}
-                            onChange={handleChange}
+                            maxLength={10}
+                            onChange={(e) => {
+                                const val = e.target.value.replace(/\D/g, '');
+                                setFormData({ ...formData, phone: val });
+                            }}
                             required
                         />
                     </div>
@@ -78,7 +82,7 @@ export default function Registration() {
                             onChange={handleChange}
                             required
                         >
-                            <option value="" disabled>Select your State (for Crop Inference)</option>
+                            <option value="" disabled>{t('selectState')}</option>
                             <option value="Andhra Pradesh">Andhra Pradesh</option>
                             <option value="Telangana">Telangana</option>
                             <option value="Karnataka">Karnataka</option>
@@ -92,13 +96,13 @@ export default function Registration() {
                         className={`primary-btn w-full flex-center mt-6 ${!isFormValid ? 'disabled' : ''}`}
                         disabled={!isFormValid}
                     >
-                        Register
+                        {t('register')}
                         <ArrowRight size={20} className="ml-2" />
                     </button>
                 </form>
 
-                <p className="auth-link">
-                    Already have an account? <span onClick={() => navigate('/login')}>Login here</span>
+                <p className="auth-link" onClick={() => navigate('/login')}>
+                    {t('alreadyHaveAccount')}
                 </p>
             </div>
         </div>

@@ -10,7 +10,7 @@ export default function Home() {
 
     // Location States
     const [locationData, setLocationData] = useState({
-        regionName: "Detecting Location...",
+        regionName: t('detectingLocation'),
         favorableCrops: ["-"],
         unfavorableCrops: ["-"],
         isLoading: true,
@@ -29,7 +29,7 @@ export default function Home() {
             }
 
             if (isMounted) {
-                setLocationData(prev => ({ ...prev, isLoading: true, error: null, regionName: "Detecting Location..." }));
+                setLocationData(prev => ({ ...prev, isLoading: true, error: null, regionName: t('detectingLocation') }));
             }
 
             navigator.geolocation.getCurrentPosition(
@@ -64,7 +64,7 @@ export default function Home() {
                     } catch (error) {
                         console.error("Geocoding failed:", error);
                         if (isMounted) {
-                            setLocationData(prev => ({ ...prev, regionName: "Location Unavailable", isLoading: false, error: "Failed to fetch exact area." }));
+                            setLocationData(prev => ({ ...prev, regionName: t('locationUnavailable'), isLoading: false, error: "Failed to fetch exact area." }));
                         }
                     }
                 },
@@ -76,11 +76,11 @@ export default function Home() {
                     if (isMounted) {
                         setLocationData(prev => ({
                             ...prev,
-                            regionName: "Location Disabled",
+                            regionName: t('locationDisabled'),
                             isLoading: false,
                             error: errorMsg,
-                            favorableCrops: ["Enable Location"],
-                            unfavorableCrops: ["Enable Location"]
+                            favorableCrops: [t('enableLocation')],
+                            unfavorableCrops: [t('enableLocation')]
                         }));
                     }
                 },
@@ -153,11 +153,11 @@ export default function Home() {
                     <div className="crops-info mt-2">
                         <div className="crop-badge favorable">
                             <Leaf size={14} className="mr-1" />
-                            <strong>Favorable:</strong> {locationData.favorableCrops.join(', ')}
+                            <strong>{t('favorable')}</strong> {locationData.favorableCrops.join(', ')}
                         </div>
                         <div className="crop-badge unfavorable mt-2">
                             <AlertTriangle size={14} className="mr-1" />
-                            <strong>Avoid:</strong> {locationData.unfavorableCrops.join(', ')}
+                            <strong>{t('avoid')}</strong> {locationData.unfavorableCrops.join(', ')}
                         </div>
                     </div>
                 )}
@@ -165,7 +165,7 @@ export default function Home() {
 
             <div className="page-header">
                 <h1>{t('homeWelcome')}</h1>
-                <p className="subtitle">Diagnose your crops instantly</p>
+                <p className="subtitle">{t('homeSubtitle')}</p>
             </div>
 
             {/* Action Grid (Voice Removed based on feedback) */}
@@ -174,8 +174,8 @@ export default function Home() {
                     <div className="action-icon-wrapper scan">
                         <Camera size={32} />
                     </div>
-                    <h3>Crop Scan</h3>
-                    <p>Upload a photo to detect diseases</p>
+                    <h3>{t('cropScan')}</h3>
+                    <p>{t('cropScanDesc')}</p>
                 </div>
             </div>
 
@@ -183,7 +183,7 @@ export default function Home() {
             {isScanning && (
                 <div className="scanning-overlay fade-in-up mt-6">
                     <div className="scanner-line"></div>
-                    <p>Analyzing Crop Data leveraging EfficientNet-B0...</p>
+                    <p>{t('analyzingCrop')}</p>
                 </div>
             )}
 
@@ -230,7 +230,7 @@ export default function Home() {
                     </div>
 
                     <button className="primary-btn w-full mt-6" onClick={() => setShowReport(false)}>
-                        Close Report
+                        {t('closeReport')}
                     </button>
                 </div>
             )}
