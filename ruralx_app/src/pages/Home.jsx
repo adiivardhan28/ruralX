@@ -38,12 +38,12 @@ export default function Home() {
                     const lon = position.coords.longitude;
 
                     try {
-                        // Using OSM Nominatim for free Reverse Geocoding
-                        const response = await fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`);
+                        // Using BigDataCloud for more accurate free client-side Reverse Geocoding
+                        const response = await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en`);
                         const data = await response.json();
 
-                        const stateName = data.address.state || data.address.region || "Unknown Region";
-                        const city = data.address.city || data.address.town || data.address.village || data.address.county || "";
+                        const stateName = data.principalSubdivision || data.adminArea || "Unknown Region";
+                        const city = data.city || data.locality || "";
 
                         let displayName = stateName;
                         if (city && city !== stateName) {
