@@ -10,7 +10,7 @@ export default function Home() {
 
     // Location States
     const [locationData, setLocationData] = useState({
-        state: "Detecting Location...",
+        regionName: "Detecting Location...",
         favorableCrops: ["-"],
         unfavorableCrops: ["-"],
         isLoading: true,
@@ -18,8 +18,20 @@ export default function Home() {
     });
 
     useEffect(() => {
-        // Attempt to get real-time location via browser
-        if ("geolocation" in navigator) {
+        let isMounted = true;
+
+        const fetchLocation = () => {
+            if (!("geolocation" in navigator)) {
+                if (isMounted) {
+                    setLocationData(prev => ({ ...prev, regionName: "Geolocation Not Supported", isLoading: false, error: "Browser not supported." }));
+                }
+                return;
+            }
+
+            if (isMounted) {
+                setLocationData(prev => ({ ...prev, isLoading: true, error: null, regionName: "Detecting Location..." }));
+            }
+
             navigator.geolocation.getCurrentPosition(
                 async (position) => {
                     const lat = position.coords.latitude;
@@ -31,18 +43,29 @@ export default function Home() {
                         const data = await response.json();
 
                         const stateName = data.address.state || data.address.region || "Unknown Region";
+                        const city = data.address.city || data.address.town || data.address.village || data.address.county || "";
+
+                        let displayName = stateName;
+                        if (city && city !== stateName) {
+                            displayName = `${city}, ${stateName}`;
+                        }
+
                         const crops = getCropSuitability(stateName);
 
-                        setLocationData({
-                            state: stateName,
-                            favorableCrops: crops.favorable,
-                            unfavorableCrops: crops.unfavorable,
-                            isLoading: false,
-                            error: null
-                        });
+                        if (isMounted) {
+                            setLocationData({
+                                regionName: displayName,
+                                favorableCrops: crops.favorable,
+                                unfavorableCrops: crops.unfavorable,
+                                isLoading: false,
+                                error: null
+                            });
+                        }
                     } catch (error) {
                         console.error("Geocoding failed:", error);
-                        setLocationData(prev => ({ ...prev, state: "Location Unavailable", isLoading: false, error: "Failed to fetch state name." }));
+                        if (isMounted) {
+                            setLocationData(prev => ({ ...prev, regionName: "Location Unavailable", isLoading: false, error: "Failed to fetch exact area." }));
+                        }
                     }
                 },
                 (err) => {
@@ -50,20 +73,37 @@ export default function Home() {
                     let errorMsg = "Please allow location access.";
                     if (err.code === err.PERMISSION_DENIED) errorMsg = "Location permission denied.";
 
-                    setLocationData(prev => ({
-                        ...prev,
-                        state: "Location Disabled",
-                        isLoading: false,
-                        error: errorMsg,
-                        favorableCrops: ["Enable Location"],
-                        unfavorableCrops: ["Enable Location"]
-                    }));
+                    if (isMounted) {
+                        setLocationData(prev => ({
+                            ...prev,
+                            regionName: "Location Disabled",
+                            isLoading: false,
+                            error: errorMsg,
+                            favorableCrops: ["Enable Location"],
+                            unfavorableCrops: ["Enable Location"]
+                        }));
+                    }
                 },
                 { timeout: 10000 }
             );
-        } else {
-            setLocationData(prev => ({ ...prev, state: "Geolocation Not Supported", isLoading: false, error: "Browser not supported." }));
+        };
+
+        fetchLocation();
+
+        // Listen for permission changes to auto-refresh when granted
+        if (navigator.permissions && navigator.permissions.query) {
+            navigator.permissions.query({ name: 'geolocation' }).then(permissionStatus => {
+                permissionStatus.onchange = () => {
+                    if (permissionStatus.state === 'granted') {
+                        fetchLocation();
+                    }
+                };
+            }).catch(e => console.error("Permission API error:", e));
         }
+
+        return () => {
+            isMounted = false;
+        };
     }, []);
 
     const diseaseReport = {
@@ -104,7 +144,7 @@ export default function Home() {
                     ) : (
                         <MapPin size={20} className="text-primary" />
                     )}
-                    <h3>{locationData.state} {locationData.isLoading ? '' : 'Region'}</h3>
+                    <h3>{locationData.regionName}</h3>
                 </div>
 
                 {locationData.error ? (
